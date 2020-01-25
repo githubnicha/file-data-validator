@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Chasj\FileDataValidator\Service;
 
-use Exception;
 define("BASE_DIR", realpath(__DIR__."/../.."));
+use Exception;
+use Chasj\FileDataValidator\Service\ExcelReader;
+use Chasj\FileDataValidator\Service\CsvReader;
 
 class DirectoryFile extends FileValidator
 {
@@ -18,6 +20,7 @@ class DirectoryFile extends FileValidator
     ];
 
     public $dataFiles;
+    public $file;
 
     public function __construct()
     {
@@ -39,7 +42,27 @@ class DirectoryFile extends FileValidator
     public function getJsonFile($dataFile)
     {
         $fileInfo = pathinfo(BASE_DIR . $this->asset . $this->data . $dataFile);
+        $json = BASE_DIR . $this->asset . $this->json . $fileInfo['filename'].'.json';
+        try {
+            $this->isExist(BASE_DIR . $this->asset . $this->json . $fileInfo['filename'].'.json');
+        } catch (Exception $e) {
+            return false;
+        }
 
-        return $fileInfo ? BASE_DIR . $this->asset . $this->json . $fileInfo['filename'].'.json' : false; 
+        return $json; 
+    }
+
+    public function getFile($file) 
+    {
+        $this->file = BASE_DIR . $this->asset . $this->data . $file;
+        $fileInfo = pathinfo($this->file);
+        switch ($fileInfo['extension']) {
+            case 'csv': 
+                return new CsvReader($this->file);
+                break;
+            default:
+                return new ExcelReader($this->file);
+
+        }
     }
 }

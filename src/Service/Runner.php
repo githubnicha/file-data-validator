@@ -13,14 +13,16 @@ class Runner
     {
         $dir = new DirectoryFile();
         foreach($dir->dataFiles as $file) {
+            $f = $dir->getFile($file);
             $jsonFile = $dir->getJsonFile($file);
             if ($jsonFile === false) {
                 continue;
             }
             $parse = new Parser($jsonFile);
-            $fr = new FileReader($file);
-            $fr->read($parse->parse());
+            $fr = new FileReader($dir->file);
+            $fr->start($f, $parse->parse());
         }
+        
         return true;
     }
     
